@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BelanjaYuk.Api/BelanjaYuk.Api.csproj" />
+    <Project Path="src/BelanjaYuk.Application/BelanjaYuk.Application.csproj" />
+    <Project Path="src/BelanjaYuk.Domain/BelanjaYuk.Domain.csproj" />
+    <Project Path="src/BelanjaYuk.Infrastructure/BelanjaYuk.Infrastructure.csproj" />
+  </Folder>
+</Solution>

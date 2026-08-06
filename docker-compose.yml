@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Container
+  db:
+    image: postgres:16-alpine
+    container_name: belanjayuk_db
+    restart: always
+    environment:
+      POSTGRES_DB: belanjayuk_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d belanjayuk_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. .NET 8 Web API Container
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: belanjayuk_api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=belanjayuk_db;Username=postgres;Password=postgres
+      - JwtSettings__Secret=BelanjaYukSuperSecretKey1234567890!@#$%_SignatureTokenKeyForAuth2026
+      - JwtSettings__Issuer=BelanjaYukApi
+      - JwtSettings__Audience=BelanjaYukWebClient
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 3. React SPA Frontend Container (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: belanjayuk_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
